@@ -6,8 +6,6 @@ import android.os.SystemClock;
 import com.dragonfly.chronometer.Home;
 
 public abstract class StopWatch implements TimeEventHandle {
-    private static final long SECOND_VIEW = 999;
-    private static final long MILISECOND_VIEW = 0;
 
     Handler handler;
     long startTime, counter, step;
@@ -15,7 +13,7 @@ public abstract class StopWatch implements TimeEventHandle {
     public StopWatch(long step) {
         this.step = step;
         handler = new Handler();
-        runner = new TimeRunner(this, SECOND_VIEW);
+        runner = new TimeRunner(this, step);
     }
 
     public abstract void onTimeChange();

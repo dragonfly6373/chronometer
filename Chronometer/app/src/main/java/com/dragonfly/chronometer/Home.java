@@ -9,16 +9,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.dragonfly.chronometer.timeUtils.StopWatch;
+import com.dragonfly.chronometer.timeUtils.TimeRunner;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Home extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "INFO";
-    private static final long SECOND_VIEW = 999;
-    private static final long MILISECOND_VIEW = 0;
-    Handler handler;
-    Runner runner;
-    long startTime, counter;
+    StopWatch stopWatch;
     TextView timeView;
     Button btnStart, btnPause, btnResume, btnReset, btnLap;
 
@@ -37,12 +36,10 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
         btnResume.setOnClickListener(this);
         btnReset.setOnClickListener(this);
         btnLap.setOnClickListener(this);
-        handler = new Handler();
-        runner = new Runner(SECOND_VIEW) {
+        stopWatch = new StopWatch(TimeRunner.SECOND_VIEW) {
             @Override
-            public void onTimeUpdate(long currentTime) {
-                long timeDelta = currentTime - startTime;
-                updateTimeLabel(timeDelta);
+            public void onTimeChange() {
+                updateTimeLabel(this.getTimeDelta());
             }
         };
     }
@@ -54,33 +51,28 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
                 Log.d(TAG, "onClick: button start");
                 btnStart.setVisibility(View.GONE);
                 btnPause.setVisibility(View.VISIBLE);
-                startTime = SystemClock.uptimeMillis();
-                counter = 0;
-                handler.postDelayed(runner, 0);
+                stopWatch.start();
                 break;
             case R.id.btnPause:
                 Log.d(TAG, "onClick: button pause");
                 btnPause.setVisibility(View.GONE);
                 btnReset.setVisibility(View.VISIBLE);
                 btnResume.setVisibility(View.VISIBLE);
-                handler.removeCallbacks(runner);
-                counter += SystemClock.uptimeMillis() - startTime;
-                Log.d(TAG, "counter = " + counter);
+                stopWatch.pause();
                 break;
             case R.id.btnResume:
                 Log.d(TAG, "onClick: button resume");
                 btnResume.setVisibility(View.GONE);
                 btnPause.setVisibility(View.VISIBLE);
                 btnReset.setVisibility(View.GONE);
-                startTime = SystemClock.uptimeMillis();
-                handler.postDelayed(runner, 0);
+                stopWatch.resume();
                 break;
             case R.id.btnReset:
                 Log.d(TAG, "onClick: button reset");
                 btnReset.setVisibility(View.GONE);
                 btnResume.setVisibility(View.GONE);
                 btnStart.setVisibility(View.VISIBLE);
-                counter = 0;
+                stopWatch.reset();
                 updateTimeLabel(0);
                 break;
             case R.id.btnLap:
@@ -93,31 +85,13 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
 
     private void updateTimeLabel(long delta) {
         Log.d(TAG, "updateTimeLabel: " + delta);
-        long ms = counter + delta;
+        long ms = delta;
         long ss = ms / 1000;
         ms %= 1000;
         long mm = ss / 60;
         ss %= 60;
         long hh = mm / 60;
         mm %= 60;
-//        timeView.setText(new SimpleDateFormat("hh : mm : ss.SSS").format(new Date(counter + delta)));
         timeView.setText(String.format("%02d : %02d : %02d.%03d", hh, mm, ss, ms));
-    }
-
-    interface RunnerHandle {
-        void onTimeUpdate(long currentTime);
-    }
-
-    abstract class Runner implements Runnable, RunnerHandle {
-        private long step;
-        public Runner(long step) {
-            this.step = step;
-        }
-        @Override
-        public void run() {
-            long currentTime = SystemClock.uptimeMillis();
-            handler.postDelayed(this, step);
-            onTimeUpdate(currentTime);
-        }
     }
 }
