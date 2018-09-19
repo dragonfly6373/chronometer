@@ -1,9 +1,7 @@
 package com.dragonfly.chronometer;
 
-import android.os.Handler;
-import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,9 +9,6 @@ import android.widget.TextView;
 
 import com.dragonfly.chronometer.timeUtils.StopWatch;
 import com.dragonfly.chronometer.timeUtils.TimeRunner;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Home extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "INFO";
